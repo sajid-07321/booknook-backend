@@ -1,5 +1,5 @@
 import express from 'express'
-import { MongoClient } from 'mongodb';
+import { MongoClient,ObjectId } from 'mongodb';
 import 'dotenv/config'
 import cors from 'cors'
 
@@ -23,18 +23,40 @@ export async function connectToMongoDB() {
   }
 }
 
-connectToMongoDB();
+const mongoClient = await connectToMongoDB();
 
-app.post('/add-book', (req,res) => {
+const db = mongoClient.db('booknook');
+const bookCollection = db.collection('books');
+
+app.post('/add-book', async (req,res) => {
     const data = req.body;
-    console.log(data);
-    res.send({massage: 'Book added successfully'})
+    
+    const result = await bookCollection.insertOne(data);
+    console.log(result);
+    res.send(result)
+})
+
+app.get('/all-book', async (req,res) => {
+    const result = await bookCollection.find().toArray();
+    res.send(result)
+})
+
+app.get('/all-book/:id', async (req,res) => {
+    const {id} = req.params
+    const result = await bookCollection.findOne({_id: new ObjectId(id)});
+    res.send(result)
+})
+
+app.get('/my-books/:email', async (req,res) => {
+    const {email} = req.params
+    const result = await bookCollection.find({email: email}).toArray();
+    res.send(result)
 })
 
 // http://localhost:5000
 
 app.get('/', (req,res) => {
-    res.send({massage: 'Server is running fine'})
+    res.send({message: 'Server is running fine'})
 })
 
 app.listen(PORT, () => {
