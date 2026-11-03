@@ -49,7 +49,13 @@ app.get('/all-book/:id', async (req,res) => {
 
 app.get('/my-books/:email', async (req,res) => {
     const {email} = req.params
-    const result = await bookCollection.find({email: email}).toArray();
+    const result = await bookCollection.find({userEmail: email}).toArray();
+    res.send(result)
+})
+
+app.delete('/my-books/:id', async (req,res) => {
+    const {id} = req.params
+    const result = await bookCollection.deleteOne({_id: new ObjectId(id)});
     res.send(result)
 })
 
