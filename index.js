@@ -59,6 +59,13 @@ app.delete('/my-books/:id', async (req,res) => {
     res.send(result)
 })
 
+app.patch('/my-books/:id', async (req,res) => {
+    const {id} = req.params
+    const data = req.body
+    const result = await bookCollection.updateOne({_id: new ObjectId(id)},{$set: data});
+    res.send(result)
+})
+
 // http://localhost:5000
 
 app.get('/', (req,res) => {
