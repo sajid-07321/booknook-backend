@@ -28,6 +28,16 @@ const mongoClient = await connectToMongoDB();
 const db = mongoClient.db('booknook');
 const bookCollection = db.collection('books');
 
+const verifyApi = (req,res,next) => {
+        const authHeader = req.headers.authorization;
+    console.log(authHeader);
+    if (!authHeader) {
+        return res.status(401).send({ message: 'Unauthorized access' });
+    }
+    console.log("i am here");
+    next()
+}
+
 app.post('/add-book', async (req,res) => {
     const data = req.body;
     
@@ -41,25 +51,25 @@ app.get('/all-book', async (req,res) => {
     res.send(result)
 })
 
-app.get('/all-book/:id', async (req,res) => {
+app.get('/all-book/:id',verifyApi, async (req,res) => {
     const {id} = req.params
     const result = await bookCollection.findOne({_id: new ObjectId(id)});
     res.send(result)
 })
 
-app.get('/my-books/:email', async (req,res) => {
+app.get('/my-books/:email',verifyApi, async (req,res) => {
     const {email} = req.params
     const result = await bookCollection.find({userEmail: email}).toArray();
     res.send(result)
 })
 
-app.delete('/my-books/:id', async (req,res) => {
+app.delete('/my-books/:id',verifyApi, async (req,res) => {
     const {id} = req.params
     const result = await bookCollection.deleteOne({_id: new ObjectId(id)});
     res.send(result)
 })
 
-app.patch('/my-books/:id', async (req,res) => {
+app.patch('/my-books/:id',verifyApi, async (req,res) => {
     const {id} = req.params
     const data = req.body
     const result = await bookCollection.updateOne({_id: new ObjectId(id)},{$set: data});
